@@ -1,0 +1,147 @@
+% !TeX encoding = utf-8
+% !TeX program = xelatex
+\documentclass[fntef]{ctexbeamer}
+\usepackage{xunicode-addon}
+
+\xeCJKsetup{
+  AllowBreakBetweenPuncts=true,
+  sout/thickness=.1em,
+}
+
+\usetheme{CambridgeUS}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{multicol}
+
+\usefonttheme{professionalfonts}
+\usepackage{unicode-math}
+\setmainfont{Cambria}
+\setsansfont{Calibri}
+\setmonofont{Consolas}
+\setmathfont{Cambria Math}
+\setCJKmainfont{Source Han Serif SC}[UprightFont={* Bold}]
+\setCJKsansfont[BoldFont={* Bold}]{Source Han Sans SC}
+\setCJKmonofont{Source Han Sans SC}
+\newfontfamily\lmr{Latin Modern Roman}
+\newfontfamily\lmss{Latin Modern Sans}
+\newfontfamily\lmtt{Latin Modern Mono}
+\renewfontfamily\useTIPAfont{Segoe UI}
+
+\usepackage{mflogo}
+\usepackage{metalogo}
+\newcommand\BibTeX{{%
+  \fontspec{TeX Gyre Heros}B\kern-.05em%
+  \textsc{i\kern-.025em b}\kern-.08em%
+  \TeX}}
+\providecommand{\LyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.symbols}
+\usetikzlibrary{shapes.callouts}
+\colorlet{shade}{blue!20}
+\usepackage{pict2e}
+\usepackage{animate}
+
+\graphicspath{{figures/}}
+
+
+\usepackage{booktabs}
+\usepackage{makecell}
+\newcolumntype{i}{!{\vrule width\lightrulewidth}}
+\newcolumntype{I}{!{\vrule width\heavyrulewidth}}
+\newcommand\Hline{\Xhline{\lightrulewidth}}
+\newcommand\HLINE{\Xhline{\heavyrulewidth}}
+\newcommand\Cline[1]{\Xcline{#1}{\lightrulewidth}}
+\newcommand\CLINE[1]{\Xcline{#1}{\heavyrulewidth}}
+
+\setbeamerfont{caption}{size=\footnotesize}
+
+\usepackage{fancyvrb}
+\fvset{formatcom=\usebeamercolor{structure}\color{fg!80!black}}
+\AtBeginDocument{\DefineShortVerb{\|}}
+
+\renewcommand\marginpar[2][]{}
+\usepackage{democode}
+\democodeset{
+  font=\usebeamercolor{structure}\color{fg!80!black},
+  backgroundcolor=white,
+  widthfrac=0.55,
+  outdir=tmp,
+}
+\def\thedemocode{\arabic{part}-\arabic{section}-\arabic{democode}}
+\newcommand\textverb[1]{\texttt{#1}}
+
+\newcommand\pkg[1]{\texttt{\usebeamercolor{structure}\color{fg!80!black}#1}}
+\newsavebox\tmpbox
+
+\usepackage{listings}
+
+\usepackage{clrscode}
+
+\usepackage{siunitx}
+\usepackage{chemformula}
+
+
+\usepackage{lettrine}
+\usepackage{shapepar}
+
+\setlength{\parskip}{.4\baselineskip plus .2\baselineskip minus .2\baselineskip}
+% 在个别时候取消 \raggedright 的作用
+\def\normalparagraph{\rightskip=0pt\spaceskip=0pt\xspaceskip=0pt\relax}
+
+\setbeamercolor{quote}{bg=lightgray!50}
+\setbeamerfont{quote}
+    {family={\rmfamily},shape=\upshape,size=\footnotesize}
+
+\newtheorem{thm}{定理}[section]
+
+% fix ctex-kit issue #489
+\ExplSyntaxOn
+\makeatletter
+\cs_set_protected_nopar:Npn \CTEX@disableautoindent
+  { \tl_clear:N \l__ctex_autoindent_tl }
+\makeatletter
+\ExplSyntaxOff
+
+\AtBeginPart{\frame{\partpage}}
+\AtBeginSection{
+  \begin{frame}{提纲}
+    \tableofcontents[currentsection,hideallsubsections]
+  \end{frame}
+}
+\AtBeginSubsection{
+  \begin{frame}{提纲}
+    \tableofcontents[currentsection,subsectionstyle=show/shaded/hide]
+  \end{frame}
+}
+
+\title{\LaTeX{} \CJKsout{快速}入门}
+\author{刘海洋}
+\date{2020 年 3 月 15 日}
+\subject{关于 LaTeX 的漫谈}
+\keywords{LaTeX}
+\hypersetup{pdfauthor=刘海洋}
+
+%\includeonly{content}
+
+\begin{document}
+
+\include{frontmatter}
+
+\include{structure}
+
+\include{content}
+
+\include{design}
+
+%\include{implement}
+
+%\include{extension}
+
+\end{document}

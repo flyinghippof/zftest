@@ -1,0 +1,10 @@
+% \usepackage{clrscode}
+\begin{codebox}
+\Procname{$\proc{Merge-Sort}(A,p,r)$}
+\li \If $p<r$
+\li \Then $q \gets \lfloor(p+r)/2\rfloor$
+\li   $\proc{Merge-Sort}(A,p,q)$
+\li   $\proc{Merge-Sort}(A,q+1,r)$
+\li   $\proc{Merge}(A,p,q,r)$
+    \End
+\end{codebox}

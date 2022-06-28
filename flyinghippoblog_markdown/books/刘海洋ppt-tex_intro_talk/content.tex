@@ -1,0 +1,520 @@
+% !TeX root = TeX-Talk.tex
+% !TeX encoding = UTF-8
+% !TeX program = XeLaTeX
+\part{填写文档内容}
+
+\section{\LaTeX{} 基础}
+
+\begin{frame}[fragile]{迟到的 Hello world.}
+\begin{columns}
+\column{0.5\textwidth}
+找个东西输入文本：
+\begin{Verbatim}
+\documentclass{article}
+\begin{document}
+Hello world.
+\end{document}
+\end{Verbatim}
+\pause
+编译代码得到结果：
+\begin{quote}
+Hello world.
+\end{quote}
+\pause
+\column{0.5\textwidth}
+中文几乎没有改变：
+\begin{Verbatim}
+\documentclass{ctexart}
+\begin{document}
+今天你吃了吗？
+\end{document}
+\end{Verbatim}
+得到：
+\begin{quote}
+今天你吃了吗？
+\end{quote}
+\end{columns}
+\pause
+具体如何编译：
+
+\begin{tikzpicture}[auto,>=latex,shorten >=1pt]
+\scope[every node/.style={draw,fill=blue!10}]
+\node (src) at (0,0) {.tex 文件};
+\node (pdf) at (6,0) {.pdf 文件};
+\node[draw=gray,text=gray] (dvi) at (1,-1.5) {.dvi 文件};
+\node[draw=gray,text=gray] (ps) at (5,-1.5) {.ps 文件};
+\endscope
+\scope[every node/.style={font={\scriptsize\ttfamily},inner sep=0pt}]
+\draw[->] (src) edge[bend left=25] node{pdflatex（英文推荐）} (pdf);
+\draw[->,thick] (src) edge[bend left=4] node{xelatex（中文推荐）} (pdf);
+\draw[->] (src) edge[bend right=4] node[swap]{lualatex（未广泛使用）} (pdf);
+\draw[->,gray] (src) -- node[swap]{latex} (dvi);
+\draw[->,gray] (dvi) -- node[swap]{dvipdfmx} (pdf);
+\draw[->,gray] (dvi) -- node[swap]{dvips（旧）} (ps);
+\draw[->,gray] (ps) -- node[swap]{ps2pdf} (pdf);
+\endscope
+\node[anchor=west,text width=3.5cm] at (7,0)
+    {为了生成目录、引用信息，往往需要若干次编译};
+\end{tikzpicture}
+\end{frame}
+
+\begin{frame}[fragile]{语法结构}
+
+相比原始的 \TeX{} 语言，\LaTeX{} 的语法结构被限制为相对固定的形式。\pause
+
+\begin{itemize}[<+->]
+\item 命令：参数总在后面花括号表示，用中括号表示可选参数
+\begin{Verbatim}
+\cmd{arg1}{arg2}\\
+\cmd[opt]{arg1}{arg2}
+\end{Verbatim}
+\begin{tabbing}
+\LaTeX{} 的分数 $\frac12$ \= |\frac{1}{2}|\\
+\TeX{} 的分数 $\frac12$ \> |1 \over 2|
+\end{tabbing}
+
+\item 环境
+\begin{Verbatim}
+\begin{env}
+  ......
+\end{env}
+\end{Verbatim}
+\begin{tabbing}
+\LaTeX{} 的矩阵 \= |\begin{matrix} ... \\ ... \end{matrix}|\\
+\TeX{} 的矩阵 \> |\matrix{...\cr ...\cr}|
+\end{tabbing}
+
+\item 注释：以符号 |%| 开头，该行在 |%| 后面的部分。
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\LaTeX{} 宏：命令与环境}
+\LaTeX{} 中的宏可分为命令与环境：\pause
+\begin{description}
+\item[命令]
+命令通常以反斜线开头，可以带零到多个参数。命令也可以是直接输出某种结果；也可以改变一个状态，此时 \LaTeX{} 用花括号 |{}| 分组或环境作为状态改变的作用域。
+
+例如 |\em abc| 改变字体以强调一些文字，得到 {\em abc}；而带参数的命令 |\emph{abc}| 可得到同样的效果。
+\pause
+\item[环境]
+环境的格式为
+\begin{Verbatim}
+\begin{env}
+  环境的内容
+\end{env}
+\end{Verbatim}
+例如右对齐：
+\begin{columns}
+\column{4cm}
+\begin{Verbatim}
+\begin{flushright}
+文字
+\end{flushright}
+\end{Verbatim}
+\column{4cm}
+\begin{quote}
+\begin{flushright}
+文字
+\end{flushright}
+\end{quote}
+\end{columns}
+\end{description}
+\end{frame}
+
+
+\section{正文文本}
+
+\begin{frame}{正文文本}
+直接输入正文文本。
+
+用空格分开单词。一个换行符等同于一个空格，多个空格的效果与一个相同。
+
+自然段分段是空一行。
+\end{frame}
+
+\begin{frame}[fragile]{正文符号}
+一些符号被 \LaTeX{} 宏语言所占用，需要以命令形式输入：
+\begin{democode}
+\# \$ \% \& \{ \}
+\textbackslash
+\end{democode}
+
+键盘上没有的符号用命令输入。
+\begin{democode}
+\S \dag \ddag \P \copyright
+\textbullet \textregistered
+\texttrademark \pounds
+\end{democode}
+
+更多的符号需要使用符号字体包。（看 symbols 文档）
+\end{frame}
+
+\section{公式}
+
+\subsection{数学公式}
+
+\begin{frame}[fragile]{数学模式}
+数学模式下字体、符号、间距与正文都不同，一切数学公式（包括单个符号 $n$, $\pi$）都要在数学模式下输入。
+\begin{itemize}
+\item 行内（inline）公式：使用一对符号 |$| |$| 来标示。如 |$a+b=c$|。
+\item 显示（display）公式。
+\begin{itemize}
+\item 简单的不编号公式用命令 |\[| 和 |\]| 标示。（不要使用双美元符号 |$$| |$$|）
+\item 基本的编号的公式用 |equation| 环境。
+\item 更复杂的结构，使用 \pkg{amsmath} 宏包提供的专门的数学环境。（不要使用 |eqnarray| 环境）
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{数学结构}
+\begin{itemize}
+\item 上标与下标：用 |^| 和 |_| 表示。
+\item 上下画线与花括号：|\overline|, |\underline|, |\overbrace|, |\underbrace|
+\item 分式：|\frac{分子}{分母}|
+\item 根式：|\sqrt[次数]{根号下}|
+\item 矩阵：使用 \pkg{amsmath} 宏包提供的专门的矩阵环境 |matrix|, |pmatrix|, |bmatrix| 等。特别复杂的矩阵（如带线条）使用 |array| 环境作为表格画出。
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{数学符号}
+\begin{itemize}
+\item 数学字母 $a$, $b$, $\alpha$, $\Delta$，数学字体 |\mathbb|（$\mathbb{R}$）、|\mathcal|（$\mathcal{P}$）等
+\item 普通符号：如 |\infty|（$\infty$）, |\angle|（$\angle$）
+\item 二元运算符：$a+b$, $a-b$ 及 $a\oplus b$
+\item 二元关系符：$a=b$, $a\le b$
+\item 括号：$\langle a, b\rangle$，使用 |\left|, |\right| 放大
+\item 标点：逗号、分号（|\colon|）
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{\pkg{amsmath} 与 \pkg{mathtools}}
+\pkg{amsmath} 是基本的数学工具包，在包含数学公式的文档中几乎无处不在。\pkg{mathtools} 则对 \pkg{amsmath} 做了一些补充和增强。\pause
+
+例子：
+\begin{align*}
+2^5 &= (1+1)^5 \\
+   &= \begin{multlined}[t]
+      \binom50\cdot 1^5 + \binom51\cdot 1^4 \cdot 1
+        + \binom52\cdot 1^3 \cdot 1^2 \\
+      + \binom53\cdot 1^2 \cdot 1^3 + \binom54\cdot 1 \cdot 1^4
+        + \binom55\cdot 1^5
+    \end{multlined} \\
+   &= \binom50 + \binom51 + \binom52 + \binom53
+        + \binom54 + \binom55
+\end{align*}
+\end{frame}
+
+\begin{frame}[fragile]{示例代码}
+\begin{Verbatim}
+\begin{align*}
+2^5 &= (1+1)^5 \\
+    &= \begin{multlined}[t]
+      \binom50\cdot 1^5 + \binom51\cdot 1^4 \cdot 1
+        + \binom52\cdot 1^3 \cdot 1^2 \\
+      + \binom53\cdot 1^2 \cdot 1^3
+        + \binom54\cdot 1 \cdot 1^4 + \binom55\cdot 1^5
+    \end{multlined} \\
+    &= \binom50 + \binom51 + \binom52 + \binom53
+        + \binom54 + \binom55
+\end{align*}
+\end{Verbatim}
+\end{frame}
+
+\subsection{科技功能}
+
+\begin{frame}[fragile]{\pkg{siunitx}：数字单位的一揽子解决方案}
+\begin{democode}
+\num{-1.235e96} \\
+\SI{299792458}{m/s} \\
+\SI{2x7x3.5}{m}
+\end{democode}
+\pause
+\begin{democode}
+\begin{tabular}{|S|}\hline
+-234532\\ 13.55 \\ .9e37km \\
+\hline
+\end{tabular}
+\end{democode}
+\pause
+注：\pkg{siunitx} 的代码有整个 \LaTeX{} 内核那么长。
+\end{frame}
+
+\begin{frame}[fragile]{\pkg{chemformula}：编写化学式}
+\pkg{chemformula} 宏包（过去用 \pkg{mhchem}）是在 \TeX{} 中定义新语法规则的典范。它让化学反应式的书写比数学式还要容易，绝大部分功能只需要 |\ch| 一条命令：
+\begin{democode}
+\ch{2 H2 + O2 -> 2 H2O}\\
+\ch{2H2O -> 2 H2 ^ + O2 ^}
+\end{democode}
+\end{frame}
+
+
+\section{列表与文本块}
+
+\begin{frame}[fragile]{列表环境}
+\begin{itemize}
+\item |enumerate| 编号
+\item |itemize| 不编号
+\item |description| 有标题
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{定理类环境}
+\begin{itemize}
+\item |\newtheorem| 定义定理类环境，如
+\begin{Verbatim}
+\newtheorem{thm}{定理}[section]
+\end{Verbatim}
+\item 使用定理类环境，如
+\begin{democode}
+\begin{thm}
+一个定理
+\end{thm}
+\end{democode}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{诗歌与引文}
+\begin{itemize}
+\item |verse|
+\item |quote|
+\item |quotation|
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{抄录代码}
+\begin{itemize}
+\item |\verb| 命令，如
+\begin{democode}
+代码 \verb|#include <stdio.h>|
+\end{democode}
+\item |verbatim|
+\begin{democode}
+\begin{verbatim}
+#include <stdio.h>
+int main() {
+    puts("hello world.");
+}
+\end{verbatim}
+\end{democode}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{高级代码：语法高亮}
+\begin{itemize}
+\item 使用 \pkg{listings} 宏包
+\begin{democode}
+\begin{lstlisting}[language=C,
+  basicstyle=\ttfamily,
+  stringstyle=\color{blue}]
+#include <stdio.h>
+int main() {
+  puts("hello world.");
+}
+\end{lstlisting}
+\end{democode}
+\item \pkg{minted} 宏包（调用 Pygment）
+\end{itemize}
+\end{frame}
+
+\begin{frame}{算法结构}
+\begin{itemize}
+\item \pkg{clrscode} 宏包（算法导论）
+\item \pkg{algorithm2e} 宏包
+\item \pkg{algorithmicx} 宏包的 \pkg{algpseudocode} 格式
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,shrink=10]{算法结构：\pkg{clrscode} 示例}
+\begin{vdemocode}
+% \usepackage{clrscode}
+\begin{codebox}
+\Procname{$\proc{Merge-Sort}(A,p,r)$}
+\li \If $p<r$
+\li \Then $q \gets \lfloor(p+r)/2\rfloor$
+\li   $\proc{Merge-Sort}(A,p,q)$
+\li   $\proc{Merge-Sort}(A,q+1,r)$
+\li   $\proc{Merge}(A,p,q,r)$
+    \End
+\end{codebox}
+\end{vdemocode}
+\end{frame}
+
+\section{图表与浮动环境}
+
+\begin{frame}[fragile]{画表格}
+使用 |tabular| 环境。
+\begin{democode}
+\begin{tabular}{|rr|}
+\hline
+输入& 输出\\ \hline
+$-2$ & 4 \\
+0 & 0 \\
+2 & 4 \\ \hline
+\end{tabular}
+\end{democode}
+
+可以使用一些工具生成表格代码，例如\\
+\url{https://www.tablesgenerator.com/latex_tables}
+\end{frame}
+
+\begin{frame}{功能各异的表格宏包}
+\begin{itemize}
+\item 单元格处理：\pkg{multirow}、\pkg{makecell}
+\item 长表格：\pkg{longtable}、\pkg{xtab}
+\item 定宽表格：\pkg{xtabular}
+\item 表线控制：\pkg{booktabs}、\pkg{diagbox}、\pkg{arydshln}
+\item 表列格式：\pkg{array}
+\item 综合应用：\pkg{tabu}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{插图}
+使用 \pkg{graphicx} 宏包提供的 |\includegraphics| 命令。
+\begin{vdemocode}
+\includegraphics[width=2cm]{pkulogo.pdf}
+\end{vdemocode}
+\end{frame}
+
+\begin{frame}{代码画图}
+优先使用外部工具画图，特别是可视化工具，例如一般的矢量图用 Inkscape、Illustrator 甚至 PowerPoint（保存为 pdf 格式），数学图形用 MATLAB、matplotlib 之类。
+
+如果有合适的宏包，某些特定类型的图形也可以用 \LaTeX{} 代码作图。现代 \LaTeX{} 绘图宏包很多基于 \pkg{TikZ}。
+\end{frame}
+
+\begin{frame}[fragile]{浮动体}
+\begin{itemize}
+\item |figure| 环境
+\item |table| 环境
+\item 其他环境可以使用 \pkg{float} 宏包得到
+\end{itemize}
+
+浮动体的标题用 |\caption| 命令得到，自动编号。
+\end{frame}
+
+
+\section{自动化工具}
+
+\subsection{目录与引用}
+
+\begin{frame}[fragile]{目录}
+\begin{figure}
+\centering
+\begin{tikzpicture}[doc/.style={draw,fill=shade,shape=rectangle},
+  prog/.style={draw,fill=shade,shape=ellipse},
+  lab/.style={auto,font=\small},
+  >=latex,shorten >=2pt]
+  \coordinate (in);
+  \node[doc,right=of in] (tex) {|.tex| 源文档};
+  \node[prog,right=of tex] (latex) {\LaTeX{} 引擎};
+  \node[doc,right=of latex] (pdf) {PDF/DVI 文件};
+  \coordinate[right=of pdf] (out);
+  \node[doc,above=of latex] (toc) {|.toc| 目录文件};
+  \draw[->] (in) -- node[lab]{编写} (tex);
+  \draw[->] (tex) -- node[lab]{输入} (latex);
+  \draw[->] (latex) -- node[lab]{输出} (pdf);
+  \draw[->] (pdf) -- node[lab] {发布} (out);
+  \draw[->,dashed] (latex.120) -- (latex.120 |- toc.south)
+    node[midway,lab,left]{前一次编译};
+  \draw[->,dashed] (latex.60 |- toc.south) -- (latex.60)
+    node[midway,lab,right]{再次编译};
+\end{tikzpicture}
+\caption{\LaTeX{} 章节目录生成示意图}
+\label{fig:toc}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{交叉引用工作原理}
+\begin{figure}
+\centering
+\begin{tikzpicture}[doc/.style={draw,fill=shade,shape=rectangle},
+  prog/.style={draw,fill=shade,shape=ellipse},
+  lab/.style={auto,font=\small},
+  >=latex,shorten >=2pt]
+  \coordinate (in);
+  \node[doc,right=of in] (tex) {|.tex| 源文档};
+  \node[prog,right=of tex] (latex) {\LaTeX{} 引擎};
+  \node[doc,right=of latex] (pdf) {PDF/DVI 文件};
+  \coordinate[right=of pdf] (out);
+  \node[doc,above=of latex] (aux) {|.aux| 辅助文件};
+  \draw[->] (in) -- node[lab]{编写} (tex);
+  \draw[->] (tex) -- node[lab]{输入} (latex);
+  \draw[->] (latex) -- node[lab]{输出} (pdf);
+  \draw[->] (pdf) -- node[lab] {发布} (out);
+  \draw[->,dashed] (latex.120) -- (latex.120 |- aux.south)
+    node[midway,lab,left]{前一次编译};
+  \draw[->,dashed] (latex.60 |- aux.south) -- (latex.60)
+    node[midway,lab,right]{再次编译};
+  \node[right=1 of aux,ellipse callout,inner sep=0,
+    callout pointer shorten=2pt,callout absolute pointer=(aux.east),
+    draw,font={\small\itshape}]
+    {\shortstack{标签、编号、\\页码……}};
+\end{tikzpicture}
+\caption{\LaTeX{} 交叉引用生成示意图}
+\label{fig:xref}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{\pkg{hyperref}：PDF 的链接与书签}
+\pkg{hyperref} 产生链接和书签的原理与普通的交叉引用相同。\pkg{hyperref} 会在 PDF 中写入相应的“锚点”代码，在其他地方引用。交叉引用的代码并入 |.aux| 文件，目录的代码并入 |.toc| 文件，PDF 书签则产生单独的 |.out| 文件。
+\end{frame}
+
+
+\subsection{\BibTeX}
+
+\begin{frame}[fragile]{\BibTeX{} 工作原理}
+\begin{figure}
+\begin{lrbox}{\tmpbox}
+\begin{tikzpicture}[doc/.style={draw,fill=shade,shape=rectangle},
+  prog/.style={draw,fill=shade,shape=ellipse},
+  lab/.style={auto,swap,midway,font=\small},
+  >=latex,shorten >=2pt]
+  \matrix[column sep=1cm,row sep=1cm] {
+    && \node[prog] (xe1) {|xelatex|};  & \node[doc] (pdf1) {无文献 PDF}; & \\
+    && \node[doc] (aux1) {|.aux| 辅助}; & \node[prog] (btx) {|bibtex|};  & \node[doc] (bbl) {|.bbl| 文献列表}; \\
+  \node (in) {编写}; & \node[doc] (tex) {|.tex| 源文件}; & \node[prog] (xe2) {|xelatex|}; & \node[doc] (pdf2) {无引用 PDF}; & \\
+    && \node[doc] (aux2) {|.aux| 辅助}; & &  \\
+    && \node[prog] (xe3) {|xelatex|}; & \node[doc] (pdf3) {最终 PDF}; & \node (out) {发布}; \\
+  };
+  \node[above left=0.4 and 0 of btx,doc] (bib) {|.bib| 数据库};
+  \node[above right=0.4 and 0 of btx,doc] (bst) {|.bst| 格式};
+  \scope[->]
+  \scope[very thick]
+  \draw (in) -- (tex);
+  \draw (tex) to[bend left] node[lab] {1} (xe1);
+  \draw (tex) -- (xe2) node[lab] {3};
+  \draw (tex) to[bend right] node[lab,swap] {4} (xe3);
+  \draw (xe1) -- (pdf1) node[lab,swap] {1};
+  \draw (xe2) -- (pdf2) node[lab] {3};
+  \draw (xe3) -- (pdf3) node[lab] {4};
+  \draw (pdf3) -- (out);
+  \endscope
+  \draw (bib) -- (btx) node[lab] {2};
+  \draw (bst) -- (btx) node[lab,swap] {2};
+  \draw (aux1) -- (btx) node[lab] {2};
+  \draw (btx) -- (bbl) node[lab] {2};
+  \scope[dashed]
+  \draw (xe1) -- (aux1) node[lab] {1};
+  \draw (aux1) -- (xe2) node[lab] {3};
+  \draw (xe2) -- (aux2) node[lab] {3};
+  \draw (aux2) -- (xe3) node[lab] {4};
+  \draw (bbl) -- (xe2) node[lab] {3};
+  \draw (bbl) to[bend left] node[lab] {4} (xe3);
+  \endscope
+  \endscope
+\end{tikzpicture}
+\end{lrbox}
+\resizebox{.9\textwidth}{!}{\usebox{\tmpbox}}
+\caption{\BibTeX{} 编译处理流程。这里以 \XeLaTeX{} 为例。}
+\label{fig:bibtex}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{设置文献格式}
+\begin{itemize}[<+->]
+\item 选用合适的 |.bst| 格式，比如 |plainnat|，|gbt7714-plain|。
+\item \pkg{natbib} 与作者-年格式
+\item 利用 \pkg{custom-bib} 产生定制的格式文件
+\item \pkg{biblatex} + Biber：文献处理的新方式
+\end{itemize}
+\end{frame}

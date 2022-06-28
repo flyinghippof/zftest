@@ -1,0 +1,158 @@
+% !TeX root = TeX-Talk.tex
+% !TeX encoding = UTF-8
+% !TeX program = XeLaTeX
+\part{组织文档结构}
+
+\section{编写结构化文档}
+
+\begin{frame}{文档由什么组成？}
+\begin{itemize}
+\item 标题
+\item 前言/摘要
+\item 目录
+\item 正文
+\begin{itemize}
+\item 篇、章、节、小节、小段
+\begin{itemize}
+\item 文字、公式
+\item 列表：编号的、不编号的、带小标题的
+\item 定理、引理、命题、证明、结论
+\item 诗歌、引文、程序代码、算法伪码
+\item 制表
+\item 画图
+\end{itemize}
+\end{itemize}
+\item 文献
+\item 索引、词汇表
+\end{itemize}
+\end{frame}
+
+\begin{frame}{纲举目张}{编写结构化文档}
+\LaTeX{} 支持结构化的文档编写方式，也只有具有良好结构的文档才适合使用 \LaTeX{} 来编写。\pause
+
+步骤：
+\begin{itemize}
+\item 拟定主题
+\item 列出提纲
+\item 填写内容
+\item \CJKsout{调整格式}\alert{不要在意格式}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Markdown：最简单的结构标记语言}
+\begin{itemize}
+\item 各级标题：对应于文章章节
+
+\item 两种列表：编号、不编号
+
+\item 强调文字：弱、强
+
+\item 插入代码：行内代码、大段代码
+
+\item 插图与链接
+
+\item 一些扩展（如数学公式）
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Markdown 演示}
+纯文本
+
+Typora
+\end{frame}
+
+\begin{frame}{\LyX{}：结构化的文档写作系统}
+\LyX{} 是一个图形界面的接近“所见即所得”效果的文档处理软件。\LyX{} 可以模拟 \LaTeX{} 的大部分功能，也可以生成 \LaTeX{} 代码。
+
+\LyX{} 不是 \LaTeX{} 编辑器，它不能编辑任意的 \LaTeX{} 文档代码。
+\end{frame}
+
+\begin{frame}{\LaTeX{}：结构化文档语言}
+可以用任何文本编辑器编写，可以使用专门的编辑器（如 TeXworks）或通用的代码编辑器（如 VS code）。
+\end{frame}
+
+\section{\LaTeX{}：结构化文档语言}
+
+\begin{frame}[fragile]{\LaTeX{} 文档基本结构}
+以 |document| 环境为界，|document| 环境前是导言部分（preamble）；环境内部是正文部分；环境之后的部分被忽略。
+
+在导言区进行格式设置，正文部分套用格式。\pause
+
+\begin{Verbatim}
+%%% 简单文档
+% 导言：格式设置
+\documentclass{ctexart}
+\usepackage[b5paper]{geometry}
+% 正文：填写内容
+\begin{document}
+使用 \LaTeX
+\end{document}
+\end{Verbatim}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{文档部件}
+\begin{itemize}
+\item 标题：|\title|, |\author|, |\date| —— |\maketitle|
+\item 摘要/前言：|abstract| 环境 / |\chapter*|
+\item 目录：|\tableofcontents|
+\item 章节：|\chapter|, |\section|,\ldots
+\item 附录：|\appendix| $+$ |\chapter|或|\section| \ldots
+\item 文献：|\bibliography|
+\item 索引：|\printindex|
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{文档划分}
+大型文档：|\frontmatter|、|\mainmatter|、|\backmatter|\pause
+
+一般文档：|\appendix|
+\pause
+
+\begin{table}
+\small
+\begin{tabular}{rlll}
+\toprule
+层次 & 名称                    & 命令             & 说明 \\
+\midrule
+$-1$ & part            & |\part|          & 可选的最高层 \\
+0    & chapter           & |\chapter|       & \pkg{report},
+\pkg{book} 类最高层 \\
+1    & section           & |\section|       & \pkg{article} 类最高层 \\
+2    & subsection      & |\subsection|    & \\
+3    & subsubsection & |\subsubsection| &
+\makecell[tl]{\pkg{report}, \pkg{book} 类 \\ 默认不编号、不编目录} \\
+4    & paragraph         & |\paragraph|     & 默认不编号、不编目录 \\
+5    & subparagraph    & |\subparagraph|  & 默认不编号、不编目录 \\
+\bottomrule
+\end{tabular}
+\caption{章节层次}\label{tab:sectioning}
+\end{table}
+\pause
+\footnotesize
+|secnumdepth| 编号的深度，|tocdepth| 编目的深度。默认值均为 3。
+\end{frame}
+
+\begin{frame}[fragile]{磁盘文件组织}
+小文档将所有内容写在同一个目录中。对比较大的文档，可以将文档分成多个文件，并划分文件目录结构：
+\begin{itemize}
+\item 主文档，给出文档框架结构
+\item 按内容章节划分不同的文件
+\item 使用单独的类文件和格式文件设置格式
+\item 用小文件隔离复杂的图表
+\end{itemize}\pause
+相关命令：
+\begin{itemize}
+\item |\documentclass|：读入文档类文件（|.cls|）
+\item |\usepackage|：读入一个格式文件——宏包（|.sty|）
+\item |\include|：分页，并读入章节文件（|.tex|）
+\item |\input|：读入任意的文件
+\end{itemize}
+\end{frame}
+
+\begin{frame}[shrink=20]{文档框架示例}
+\begin{multicols}{2}
+\VerbatimInput{sample/skeleton.tex}
+\end{multicols}
+\end{frame}

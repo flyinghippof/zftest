@@ -1,0 +1,472 @@
+% -*- coding: UTF-8 -*-
+% democode.sty
+% LaTeX 代码与编译结果对照环境与代码环境扩展
+% 刘海洋
+% leoliu.pku@gmail.com
+\ProvidesPackage{democode}[2018/08/29 Demo code environments for books on LaTeX]
+
+\RequirePackage{ifxetex}
+\RequirePackage{verbatim}
+\RequirePackage{keyval}
+\RequirePackage{xcolor}
+\RequirePackage{mhsetup}
+\RequirePackage{ifoddpage}
+\RequirePackage{etoolbox}
+
+\newcommand\democodeset[1]{\setkeys{democode}{#1}}
+
+\def\dc@verbatimfonthook{}
+\AtBeginDocument{\appto\verbatim@font{\dc@verbatimfonthook}}
+\define@key{democode}{font}{\def\dc@verbatimfonthook{#1}}
+
+\def\dc@backgroundcolor{black!10}
+\define@key{democode}{backgroundcolor}{\def\dc@backgroundcolor{#1}}
+
+\def\dc@framecolor{black}
+\define@key{democode}{framecolor}{\def\dc@framecolor{#1}}
+
+\def\dc@outdir{\@currdir}
+\define@key{democode}{outdir}{\def\dc@outdir{#1}}
+
+\def\dc@none{none}
+\def\dc@verbfilename{\jobname.vrb}
+\define@key{democode}{file}{%
+  \edef\dc@temp{#1}%
+  \ifx\dc@temp\dc@none
+    \def\dc@verbfilename{\jobname.vrb}%
+  \else
+    \def\dc@verbfilename{\dc@outdir/\dc@temp}%
+  \fi}
+
+\def\dc@outext{tex}
+\define@key{democode}{ext}{%
+  \def\dc@outext{#1}}
+
+\def\dc@prehook{}
+\def\dc@posthook{}
+\define@key{democode}{pre}{\def\dc@prehook{#1}}
+\define@key{democode}{post}{\def\dc@posthook{#1}}
+
+\newif\ifdc@maketag \dc@maketagfalse
+\newif\ifdc@autotag \dc@autotagfalse
+\define@key{democode}{autotag}[\dc@true]{%
+  \edef\dc@temp{#1}%
+  \ifx\dc@temp\dc@true
+    \dc@autotagtrue
+    \dc@maketagtrue
+    \def\dc@verbfilename{\dc@outdir/\thedemocode.\dc@outext}%
+  \else\ifx\dc@temp\dc@false
+    \dc@autotagfalse
+    \dc@maketagfalse
+    \def\dc@verbfilename{\jobname.vrb}%
+  \fi\fi}
+%
+
+\define@key{democode}{tag}{%
+  \def\thedemocode{#1}%
+  \dc@autotagfalse
+  \dc@maketagtrue}
+%
+
+\def\dc@tagstyle{\normalfont\sffamily\small}
+\define@key{democode}{tagstyle}{%
+  \def\dc@tagstyle{#1}}
+%
+
+\providecommand\democodeautorefname{例}
+\newif\ifdc@label \dc@labelfalse
+\define@key{democode}{label}{%
+  \dc@labeltrue
+  \def\dc@label{#1}}
+%
+
+\newif\ifdc@numbers \dc@numbersfalse
+\def\dc@true{true}
+\def\dc@false{false}
+\define@key{democode}{numbers}[\dc@true]{%
+  \edef\dc@temp{#1}%
+  \ifx\dc@temp\dc@true
+    \dc@numberstrue
+  \else\ifx\dc@temp\dc@false
+    \dc@numbersfalse
+  \else\ifx\dc@temp\dc@none
+    \dc@numbersfalse
+  \else
+    \PackageError{democode}{Unknown numbers argument `\dc@temp'}{}
+  \fi\fi\fi}
+
+\def\dc@numberstyle{\normalfont\scriptsize\itshape}
+\define@key{democode}{numberstyle}{\def\dc@numberstyle{#1}}
+
+\define@key{democode}{thenumber}{\def\thedemocodeline{#1}}
+
+\def\dc@width{\columnwidth}
+\define@key{democode}{width}{\def\dc@width{#1}}
+
+\def\dc@widthfrac{0.6}
+\define@key{democode}{widthfrac}[0.6]{\def\dc@widthfrac{#1}}
+
+\def\dc@leftmargin{0pt}
+\define@key{democode}{leftmargin}{\def\dc@leftmargin{#1}}
+
+\newif\ifdc@showspaces \dc@showspacesfalse
+\define@key{democode}{showspaces}[\dc@true]{%
+  \edef\dc@temp{#1}%
+  \ifx\dc@temp\dc@true
+    \dc@showspacestrue
+  \else\ifx\dc@temp\dc@false
+    \dc@showspacesfalse
+  \fi\fi}
+
+
+\def\dc@dospecials{\do\ \do\\\do\{\do\}\do\$\do\&%
+  \do\#\do\^\do\_\do\%\do\~\do\|\do\"}
+
+\newwrite\dc@outfile
+
+\def\dc@startwrite#1{%
+  \begingroup
+  \immediate\openout\dc@outfile #1
+  \let\do\@makeother \dc@dospecials
+  \catcode`\^^M\active
+  \def\verbatim@processline{%
+    \immediate\write\dc@outfile{\the\verbatim@line}}%
+  \verbatim@start}
+
+\def\dc@endwrite{\immediate\closeout\dc@outfile
+  \endgroup}
+
+\newcounter{democode}
+\@addtoreset{democode}{section}
+\def\thedemocode{%
+  \if@mainmatter
+    \arabic{chapter}-\arabic{section}-\arabic{democode}%
+  \else
+    \arabic{chapter}-\arabic{democode}%
+  \fi}
+\ifdefined\c@chapter\else
+  \def\thedemocode{\arabic{section}-\arabic{democode}}
+\fi
+
+\newcounter{democodeline}
+\def\thedemocodeline{\arabic{democodeline}}
+
+
+\def\dc@clearparshape{%
+  \ifnum\@listdepth=0
+    \parshape\z@
+  \fi
+  \hangindent\z@}
+\appto\endverbatim{\aftergroup\dc@clearparshape}
+
+
+\def\dc@hrule{%
+  \nointerlineskip
+  \moveright\@totalleftmargin
+    \vbox{\color{\dc@framecolor}\hrule width\dc@width height\fboxrule}%
+  \nointerlineskip}
+
+% 产生代码对照环境的编号框
+% #1 => 上升的高度，其中 democode 环境不需要上升，而 vdemocode 等环境需要上升
+\def\dc@maketag#1{%
+  \ifdc@maketag
+    \marginpar[%
+      \hfill
+      \begin{picture}(0,0)
+        \put(0,\strip@pt\dimexpr#1\relax){\llap{\fbox{\dc@tagstyle\thedemocode}}}
+      \end{picture}%
+    ]{%
+      \leavevmode
+      \begin{picture}(0,0)
+        \put(0,\strip@pt\dimexpr#1\relax){\fbox{\dc@tagstyle\thedemocode}}
+      \end{picture}
+    }%
+  \fi
+  \dc@maketagfalse}
+
+% 处理带行号的一行代码
+\def\dc@processline{%
+    \leavevmode
+    \ifdc@numbers
+      \stepcounter{democodeline}%
+      \llap{{\dc@numberstyle\thedemocodeline}\space
+        \ifx\dc@fillline\empty
+          \hskip\fboxsep
+        \fi}%
+    \fi
+    \dc@fillline
+    \hskip\fboxrule
+    \hb@xt@\dimexpr\dc@width-\fboxsep-\fboxrule\relax{\the\verbatim@line\hfill}\par}
+%
+
+% 在 \dc@processline 中用色块填充行
+\def\dc@fillline{%
+  \rlap{%
+    {\color{\dc@framecolor}\vrule width\fboxrule height\ht\strutbox depth\dp\strutbox}%
+    {\color{\dc@backgroundcolor}\vrule width\dimexpr\dc@width-2\fboxrule}%
+    {\color{\dc@framecolor}\vrule width\fboxrule height\ht\strutbox depth\dp\strutbox}}%
+  \hskip\fboxsep}
+%
+
+% 此行排不下时，增加当前页长度放置此行
+% 数值是试验得到的，不准确
+\def\dc@enlargethispage{%
+  \ifdim\dimexpr\pagetotal-\pagegoal+7pt\relax>\pageshrink
+    \PackageWarning{democode}{Enlarge this page.}%
+    \enlargethispage*{5.2pt}%
+  \fi}
+%
+
+\newsavebox\dc@codebox
+
+\def\dc@fverbatiminput#1{%
+  \def\item{\@item[]}%
+  \ifdc@numbers\setcounter{democodeline}{0}\fi
+  \let\verbatim@processline\dc@processline
+  \preto\verbatim@finish{\dc@maketag{-1.5pt}}%
+  \@totalleftmargin=\dc@leftmargin
+  \trivlist \item
+  \parskip=0pt
+  \lineskip=0pt \lineskiplimit\maxdimen
+  \hsize=\dimexpr\dc@width
+  \dc@hrule
+  \nobreak
+  \let\dospecials\dc@dospecials
+  \ifdc@showspaces
+    \verbatiminput*{#1}%
+  \else
+    \verbatiminput{#1}%
+  \fi
+  \nobreak
+  \dc@enlargethispage
+  \dc@hrule
+  \endtrivlist
+  \aftergroup\dc@clearparshape}
+%
+
+
+\newcommand\fverbatiminput[2][]{%
+  \@ignorefalse
+  \begingroup
+  \@endpefalse
+  \dc@autotagfalse
+  \setkeys{democode}{#1}%
+  \ifdc@autotag
+    \refstepcounter{democode}%
+    \ifdc@label\label{\dc@label}\fi
+  \fi\dc@fverbatiminput{#2}%
+  \expandafter\endgroup\if@endpe\@doendpe\fi  % \end 的定义，阻止多余分段
+  \if@ignore\@ignorefalse\ignorespaces\fi}
+%
+
+
+\MHPrecedingSpacesOff
+
+\newenvironment{fverbatim}[1][]
+  {\dc@autotagfalse
+   \setkeys{democode}{#1}%
+   \ifdc@autotag
+     \refstepcounter{democode}%
+     \ifdc@label\label{\dc@label}\fi
+   \fi
+   \dc@startwrite{\dc@verbfilename}}%
+  {\dc@endwrite
+   \dc@fverbatiminput{\dc@verbfilename}}
+%
+
+\newenvironment{democode}[1][]
+  {\dc@autotagtrue
+   \dc@maketagtrue
+   \def\dc@verbfilename{\dc@outdir/\thedemocode.\dc@outext}%
+   \setkeys{democode}{#1}%
+   \ifdc@autotag
+     \refstepcounter{democode}%
+     \ifdc@label\label{\dc@label}\fi
+   \fi
+   \dc@startwrite{\dc@verbfilename}}%
+  {\dc@endwrite
+   \ifdc@numbers\setcounter{democodeline}{0}\fi
+   \let\verbatim@processline\dc@processline
+   \let\dc@fillline\empty
+   \begin{lrbox}{\dc@codebox}
+     \edef\dc@saved@fboxsep{\the\fboxsep}%
+     \fboxsep=1.5ex
+     \fcolorbox{\dc@framecolor}{\dc@backgroundcolor}{%
+       \begin{minipage}[c]{\dimexpr\dc@widthfrac\dc@width-2\fboxsep-2\fboxrule-0.2em\relax}
+         \let\dospecials\dc@dospecials
+         \ifdc@showspaces
+           \verbatiminput*{\dc@verbfilename}%
+         \else
+           \verbatiminput{\dc@verbfilename}%
+         \fi
+       \end{minipage}}\hspace{.4em}%
+     \fbox{\begin{minipage}[c]{\dimexpr\dc@width-\dc@widthfrac\dc@width-2\fboxsep-2\fboxrule-0.2em\relax}
+       \fboxsep=\dc@saved@fboxsep
+       \@makeother\| \@makeother\"
+       \dc@prehook
+       \input{\dc@verbfilename}%
+       \dc@posthook
+     \end{minipage}}%
+   \end{lrbox}%
+   \trivlist \@item[]%
+   \hskip-\@totalleftmargin
+   \hskip\dc@leftmargin
+   \checkoddpage
+   \ifoddpage
+     \makebox[\dc@width][r]{\usebox{\dc@codebox}}%
+   \else
+     \makebox[\dc@width][l]{\usebox{\dc@codebox}}%
+   \fi
+   \dc@maketag\z@
+   \endtrivlist
+   \aftergroup\dc@clearparshape}
+%
+
+\newenvironment{vdemocode}[1][]
+  {\dc@autotagtrue
+   \dc@maketagtrue
+   \def\dc@verbfilename{\dc@outdir/\thedemocode.\dc@outext}%
+   \setkeys{democode}{#1}%
+   \ifdc@autotag
+     \refstepcounter{democode}%
+     \ifdc@label\label{\dc@label}\fi
+   \fi
+   \dc@startwrite{\dc@verbfilename}}%
+  {\dc@endwrite
+   \@totalleftmargin=\dc@leftmargin
+   \trivlist \@item[]%
+   \begingroup
+   \ifdc@numbers\setcounter{democodeline}{0}\fi
+   \let\verbatim@processline\dc@processline
+   \preto\verbatim@finish{\dc@maketag{-1.5pt}}%
+   \parskip=0pt
+   \lineskip=0pt \lineskiplimit\maxdimen
+   \hsize=\dimexpr\dc@width
+   \dc@hrule
+   \nobreak
+   \let\dospecials\dc@dospecials
+   \ifdc@showspaces
+     \verbatiminput*{\dc@verbfilename}%
+   \else
+     \verbatiminput{\dc@verbfilename}%
+   \fi
+   \nobreak
+   \dc@hrule
+   \dc@enlargethispage
+   \endgroup
+   \@item[]%
+   \leftskip=\dc@leftmargin
+   \@makeother\| \@makeother\"
+   \dc@prehook
+   \input{\dc@verbfilename}%
+   \dc@posthook
+   \endtrivlist
+   \aftergroup\dc@clearparshape}
+%
+
+\MHPrecedingSpacesOn
+
+
+\def\dc@lverb{\verb|}
+\begingroup
+\catcode`\|\active
+\gdef\MakeShortVerb{%
+  \ifdefined\dc@save@vertcatcode
+    \PackageError{democode}{Reuse \noexpand\MakeShortVerb}%
+      {Delete it or use \noexpand\DelShortVerb}
+  \else
+    \edef\dc@save@vertcatcode{\the\catcode`\|}%
+    \catcode`\|\active
+    \def|{\dc@lverb}%
+    \let\dc@save@sanitize\@sanitize
+    \def\@sanitize{\dc@save@sanitize\@makeother\|}%
+  \fi}
+\endgroup
+\def\DelShortVerb{%
+  \ifdefined\dc@save@vertcatcode
+    \catcode`\|\dc@save@vertcatcode
+    \let\dc@save@vertcatcode\undefined
+    \let\@sanitize\dc@save@sanitize
+    \let\dc@save@sanitize\undefined
+  \fi}
+
+
+\newcommand\meta{\@ifstar\dc@metabreakable\dc@meta}
+\def\dc@meta#1{\ensuremath{\langle\textit{#1}\rangle}}
+\def\dc@metabreakable#1{%
+  \begingroup
+    \ensuremath{\langle}\nobreak
+    \normalfont\itshape #1\nobreak
+    \ensuremath{\rangle}
+  \endgroup}
+
+\def\dc@lmeta{\begingroup\ensuremath{\langle}%
+  \@nameuse{CJKfixedspacing}\normalfont\itshape}
+\def\dc@rmeta{\ensuremath{\rangle}\endgroup}
+\begingroup
+\catcode`\<\active
+\catcode`\>\active
+\gdef\MakeShortMeta{%
+  \ifdefined\dc@save@lesscatcode
+    \PackageError{democode}{Reuse \noexpand\MakeShortMeta}%
+      {Delete it or use \noexpand\DelShortMeta}
+  \else
+    \edef\dc@save@lesscatcode{\the\catcode`\<}%
+    \edef\dc@save@greatercatcode{\the\catcode`\>}%
+    \catcode`\<\active
+    \catcode`\>\active
+    \def<{\dc@lmeta}%
+    \def>{\dc@rmeta}%
+    \let\dc@save@lverb\dc@lverb
+    \def\dc@lverb{%
+      \dc@save@lverb
+      \def<{\dc@lmeta}%
+      \def>{\dc@rmeta}}%
+  \fi}
+\endgroup
+\def\DelShortMeta{%
+  \ifdefined\dc@save@lesscatcode
+    \catcode`\<\dc@save@lesscatcode
+    \catcode`\>\dc@save@greatercatcode
+    \let\dc@lverb\dc@save@lverb
+    \let\dc@save@lesscatcode\undefined
+    \let\dc@save@greatercatcode\undefined
+    \let\dc@save@lverb\undefined
+  \fi}
+%
+\newenvironment{proto}%
+  {\quote
+   \democodeset{font=\bfseries}%
+   \DelShortVerb\DelShortMeta
+   \MakeShortMeta\MakeShortVerb}%
+  {\DelShortVerb\DelShortMeta
+   \endquote
+   \aftergroup\dc@clearparshape}
+%
+
+
+% visible spaces in verbatim, cf. xltxtra
+\ifxetex
+  \def\dc@visiblespace{\leavevmode\hbox{\textvisiblespace}}
+  \begingroup
+    \lccode`\~=`\ %
+    \lowercase{%
+      \gdef\dc@vprintspaces{\catcode`~=\active
+        \let~\dc@visiblespace}}%
+  \endgroup
+  \def\verb{\relax\ifmmode\hbox\else\leavevmode\null\fi
+    \bgroup
+      \verb@eol@error \let\do\@makeother \dc@dospecials
+      \verbatim@font\@noligs
+      \@ifstar\dc@sverb\@verb}
+  \def\dc@sverb{\dc@vprintspaces\@sverb}
+  \@namedef{verbatim*}{\begingroup\@verbatim\dc@vprintspaces\verbatim@start}
+  \def\verbatiminput{\begingroup
+    \@ifstar{\verbatim@input\dc@vprintspaces}%
+            {\verbatim@input{\frenchspacing\@vobeyspaces}}}
+\fi % ifxetex
+
+\endinput
+
+% vim:ft=tex:sw=2:et
+

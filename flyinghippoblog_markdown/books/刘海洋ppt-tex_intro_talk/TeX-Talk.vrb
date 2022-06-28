@@ -1,0 +1,17 @@
+\frametitle{章节标题}
+\pkg{ctex} 宏包及文档类，用 |\ctexset| 定制。西文用 \pkg{titlesec} 等。
+\begin{Verbatim}
+\ctexset {
+  chapter = {
+    beforeskip = 0pt,
+    fixskip = true,
+    format = \Huge\bfseries,
+    nameformat = \rule{\linewidth}{1bp}\par
+                 \bigskip\hfill\chapternamebox,
+    number = \arabic{chapter},
+    aftername = \par\medskip,
+    aftertitle = \par\bigskip\nointerlineskip
+                 \rule{\linewidth}{2bp}\par}}
+\newcommand\chapternamebox[1]{%
+  \parbox{\ccwd}{\linespread{1}\selectfont\centering #1}}
+\end{Verbatim}

@@ -1,0 +1,38 @@
+% language-main.tex
+\documentclass{book}
+\usepackage{makeidx}
+\makeindex
+\title{Languages} \author{someone}
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+\mainmatter
+\include{intro}
+\include{class}
+\backmatter
+\include{appendix}
+\bibliography{foo}
+\printindex
+\end{document}
+
+
+% intro.tex
+\part{Introduction}                     % Part I
+  \chapter{Background}                  %   Chapter 1
+
+% class.tex
+\part{Classification}                   % Part II
+ \chapter{Natural Language}             %   Chapter 2
+ \chapter{Computer Languages}           %   Chapter 3
+  \section{Machine Languages}           %     3.1
+  \section{High Level Languages}        %     3.2
+   \subsection{Compiled Language}       %       3.2.1
+   \subsection{Interpretative Language} %       3.2.2
+   \subsubsection{Lisp}
+    \paragraph{Common Lisp}
+    \paragraph{Scheme}
+   \subsubsection{Perl}
+
+% appendix.tex
+  \chapter{Appendix}

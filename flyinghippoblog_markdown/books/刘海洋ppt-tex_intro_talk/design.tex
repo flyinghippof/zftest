@@ -1,0 +1,151 @@
+% !TeX root = TeX-Talk.tex
+% !TeX encoding = UTF-8
+% !TeX program = XeLaTeX
+\part{设计文档格式}
+
+\section{基本原则}
+
+\begin{frame}[fragile]{\CJKsout{格式与内容分离}不要在意细节}
+\CJKsout{格式与内容分离}\alert{不要在意细节}是 \LaTeX{} 的一大“卖点”。它使得 \LaTeX{} 不仅仅是 \TeX{} 这样一种排版语言，也是一种文档编写工具。\LaTeX{} 是面向文档作者本人的排版语言。\pause
+
+在 \LaTeX{} 的设计中，将文档的格式设计与内容分离开来。标准的 \LaTeXe{} 文档类具有相对固定的排版格式，作者编写文档只使用 |\title|、|\section|、|abstract| 这样的命令或环境，而不必考虑其具体实现。而有关格式的细节代码，则被封装在文档类、宏包中，或在导言区分离编写。\pause
+
+出版社提供的投稿用文档类，以及清华薛瑞尼编写的 Thuthesis 模板，北大刘玙的 pkuthss 模板，就是将事先设计好的格式交给文档作者使用的结果。
+\end{frame}
+
+\begin{frame}[fragile]{使用内容相关的命令与环境}
+但是，格式与内容的分离不仅需要格式设计者的努力，也需要作者在填写内容时遵循分离原则。基本的方法就是只使用与内容相关的命令和环境。\pause
+\begin{itemize}[<+->]
+\item
+\begin{tabbing}
+推荐：\= |It is \emph{important}.| \\
+不好：\> |It is \textit{important}.| 
+\end{tabbing}
+\item
+\begin{tabbing}
+推荐：\= |\caption{流程图}| \\
+不好：\> |\textbf{图1:} 流程图|
+\end{tabbing}
+\item
+\begin{tabbing}
+推荐：\= |\begin{verse} 诗行 \end{verse}| \\
+不好：\> |\begin{center} 诗行 \end{center}| \\
+糟糕：\> |~~~~~~~~~~~~~~~~~~~~~~诗行|
+\end{tabbing}
+\end{itemize}
+\end{frame}
+
+\section{使用宏包}
+
+\begin{frame}{使用宏包}
+\begin{description}[<+->]
+\item[作用] 宏包将可重用的代码提取出来，相当于其他程序语言中的“库”。使用宏包可以用简单的接口实现非常复杂的功能，有些对于个人来说是“不可能的任务”。
+\item[问题] 第三方宏包可能破坏 \TeX{} 设计的“向前兼容性”；不同宏包之间如果出现兼容性问题更难解决。——使用宏包会将兼容性问题从 \TeX{} 语言扩大到所有宏包代码。
+\end{description}
+\only<+->{现代 \LaTeX{} 文档离不开第三方宏包，但应合理使用：}
+\begin{itemize}[<+->]
+\item 尽量不造轮子
+\item 尽量排除不需要的宏包
+\end{itemize}
+\end{frame}
+
+
+\section{格式控制功能}
+
+\begin{frame}[fragile]{字体字号}
+字体
+\begin{itemize}
+\item |\rmfamily|, |\textrm{...}|
+\item |\sffamily|, |\textsf{...}|
+\item |\ttfamily|, |\texttt{...}|
+\end{itemize}
+
+字号：|\Huge|, |\LARGE|, |\Large|, |\large|, |\normalsize|, |\small|, |\footnotesize|, |\scriptsize|, |\tiny|
+
+中文字号：|\zihao{5}|、|\zihao{-3}|
+\end{frame}
+
+\begin{frame}[fragile]{对齐}
+|\centering|、|\raggedleft|、|\raggedright|
+\end{frame}
+
+\begin{frame}[fragile]{空白间距}
+|\hspace{2cm}|
+
+|\vspace{3mm}|
+\end{frame}
+
+\begin{frame}{版面布局}
+\pkg{geometry} 宏包
+
+\pkg{fancyhdr} 宏包等
+\end{frame}
+
+\begin{frame}[fragile]{分页断行}
+|\linebreak|、|\\|
+
+|\pagebreak|、|\newpage|、|\clearpage|、|\cleardoublepage|
+\end{frame}
+
+\begin{frame}[fragile]{盒子}
+|\mbox{内容}|
+
+|\parbox{4em}{内容}|、|minipage|
+\end{frame}
+
+\section{格式应用于文档}
+
+\begin{frame}[fragile]{使用在导言区单独设置格式}
+如果预定义的格式不符合需要，就需要设置修改。经常文档作者本人就是格式设计者，此时更应该注意不要把格式和内容混在一起。\pause
+\begin{itemize}[<+->]
+\item 直接设置相关参数。如设置 |\parindent|、|\parskip|、|\linespread|、|\pagestyle|。
+\item 修改部分命令定义。如修改 |\thesection|、|\labelenumi|、|\descriptionlabel|、|\figurename|。
+\item 利用工具宏包完成设置。如使用 \pkg{ctex} 宏包设置中文格式，使用 \pkg{tocloft} 宏包设置目录格式。
+\end{itemize}\pause
+传统的文档中经常修改 \LaTeX{} 的内部命令，如重定义内部命令 |\l@section| 来修改目录格式。这体现了当初 \LaTeX{} 设计的不足：没有提供足够的用户层接口来调整格式。不过这类方法比较晦涩，一般应该使用相关宏包功能代替。
+\end{frame}
+
+\begin{frame}[fragile]{利用自定义命令和环境}
+对于 \LaTeX{} 没有直接提供的格式，可以使用自定义的命令和环境实现语义的接口。\pause
+
+例如，为程序名称定义一个命令：
+\begin{Verbatim}
+\newcommand\prg[1]{\textsf{#1}}
+\end{Verbatim}
+\pause
+这不仅提供了更具意义的名字，而且为未来的修改和扩充提供条件：
+\begin{Verbatim}
+\newcommand\prg[1]{%
+  \textcolor{blue}\texttt{#1}\index{#1 程序}}
+\end{Verbatim}
+\pause
+
+\alert{注意：}各种直接修改输出格式的命令，如字体、字号、对齐、间距的命令，都应该放在文档格式设置或自定义的命令、环境中，而避免在正文中直接使用。
+\end{frame}
+
+\begin{frame}[fragile]{章节标题}
+\pkg{ctex} 宏包及文档类，用 |\ctexset| 定制。西文用 \pkg{titlesec} 等。
+\begin{Verbatim}
+\ctexset {
+  chapter = {
+    beforeskip = 0pt,
+    fixskip = true,
+    format = \Huge\bfseries,
+    nameformat = \rule{\linewidth}{1bp}\par
+                 \bigskip\hfill\chapternamebox,
+    number = \arabic{chapter},
+    aftername = \par\medskip,
+    aftertitle = \par\bigskip\nointerlineskip
+                 \rule{\linewidth}{2bp}\par}}
+\newcommand\chapternamebox[1]{%
+  \parbox{\ccwd}{\linespread{1}\selectfont\centering #1}}
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}{浮动标题}
+\pkg{caption} 宏包
+\end{frame}
+
+\begin{frame}{列表环境}
+\pkg{enumitem} 宏包
+\end{frame}
